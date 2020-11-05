@@ -16,3 +16,13 @@ See <https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-sta
 ```
 ./search.01.sh
 ```
+
+#### Same data, in JSON
+```
+./ingest.json.sh
+```
+then
+```
+./search.02.sh
+```
+
