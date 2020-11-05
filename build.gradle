@@ -1,0 +1,62 @@
+plugins {
+  id 'java'
+//  id 'scala'
+  id 'idea'
+  id 'maven'
+  id 'com.github.johnrengelman.shadow' version '6.0.0' // 6 requires a recent gradle. Use '5.2.0' otherwise.
+  id "application"
+}
+
+compileJava.options.encoding = 'UTF-8'
+// compileJava.options.encoding = 'ISO-8859-1'
+compileJava.options.compilerArgs += ["-Xlint:unchecked"]
+
+group = 'elastic-search'
+version = '1.0'
+
+// sourceCompatibility = 1.8
+// targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+  if (JavaVersion.current() != project.targetCompatibility) {
+//    throw new GradleException(
+    println "+------ Warning: Java version (JAVA_HOME) possible mismatch -----\n" +
+            "| In task $name ($project.name), the java version used ${JavaVersion.current()} is not the expected version ${project.targetCompatibility}.\n" +
+            "+----------------------------------------------------------------"
+//    )
+  } else {
+    println ">> From task $name (in $project.name), using java version ${JavaVersion.current()} "
+  }
+  options.encoding = 'UTF-8'
+}
+
+dependencies {
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://www.datanucleus.org/downloads/maven2" }
+    maven { url "https://oss.sonatype.org/content/groups/public" }
+}
+
+// Used by ./gradlew run ('application' plugin).
+mainClassName = "javasamples.Scaffolding"
+
+shadowJar {
+    zip64 true
+    mergeServiceFiles()
+}
+
+// Modify/uncomment if needed
+//tasks.withType(JavaExec) {
+//    classpath += configurations.developmentOnly
+//    jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+//    if (gradle.startParameter.continuous) {
+//        systemProperties(
+//                'micronaut.io.watch.restart':'true',
+//                'micronaut.io.watch.enabled':'true',
+//                "micronaut.io.watch.paths":"src/main"
+//        )
+//    }
+//}
