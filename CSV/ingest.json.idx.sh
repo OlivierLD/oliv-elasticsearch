@@ -9,7 +9,11 @@ pushd ..
 java -jar build/libs/elastic-search-1.0-all.jar CSV/NYC_Transit_Subway_Entrance_And_Exit_Data.csv CSV/NYC_Transit_Subway_Entrance_And_Exit_Data.json
 popd
 #
-DATA_INDEX="subway_info_2"
+DATA_INDEX="subway_info_3"
+#
+curl -X PUT "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/_mapping" \
+        -H "Content-Type: application/json" \
+        -d "{ \"properties\": { \"Division\": { \"type\": \"text\", \"fielddata\": true } } }"
 #
 while read f1
 do

@@ -77,3 +77,8 @@ curl -X GET "${ELASTIC_SEARCH_INSTANCE}/subway_info_v2/station/_search" \
      -d "{ \"query\": { \"match_all\": {} }, \"from\": 10, \"size\": 200 }" | jq
 #
 echo -e "That's it!"
+
+#
+# To delete:
+# curl -X DELETE "${ELASTIC_SEARCH_INSTANCE}/subway_info_v2/" | jq
+#
