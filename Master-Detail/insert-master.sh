@@ -158,6 +158,16 @@ else
   echo -e "Doing a curl -X GET ${COMMAND}"
   curl -X GET "${COMMAND}" | jq
   #
+  echo -en "Hit return to move on, to see a count > "
+  read -r hit
+  # A search
+  COMMAND="${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_count"
+  echo -e "Doing a curl -X GET ${COMMAND}"
+  curl -X GET "${COMMAND}" | jq
+  #
+  echo -en "Hit return to move on, ... > "
+  read -r hit
+  #
   echo -e "Also try :"
   echo -e "----------"
   echo -e "curl -X GET localhost:9200/test-cases,test-suites/_search | jq"
@@ -175,7 +185,7 @@ else
   curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}'
   curl -X GET "localhost:9200/_search" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}' | jq
   # Updating ONE record
-  echo -en "Hit return to move on with an update > "
+  echo -en "Hit return to move on with an update (no version) > "
   read -r hit
   UNIQUE_INDEX="30"
   RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Three\", \"value\": \"Get me a beer!\" }"
@@ -199,7 +209,6 @@ else
   echo -en "Hit return to move on with DELETE > "
   read -r hit
   UNIQUE_INDEX="30"
-  # RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Three\", \"value\": \"Get me an apple pie\" }"
   curl -X DELETE "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_INDEX}" | jq
   echo -e "After DELETE: Detail records:"
   echo -en "Hit return to move on > "

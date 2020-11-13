@@ -31,7 +31,12 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile 'org.json:json:20141113'
+    implementation 'org.json:json:20141113'
+//    implementation 'org.elasticsearch:elasticsearch:7.9.3'
+    // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.3'
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
 }
 
 repositories {
