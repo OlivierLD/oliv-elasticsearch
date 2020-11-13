@@ -15,6 +15,7 @@ while read f1
 do
 #   echo -e "${f2}"
 #        -u elastic:XXXX \  # User identification, if needed
+#                                          /indexName     /typeName/uniqueId
    curl -X POST "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/station" \
         -H "Content-Type: application/json" \
         -d "$f1"

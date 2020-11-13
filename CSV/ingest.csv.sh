@@ -8,6 +8,7 @@ do
    f2=$(echo ${f1} | sed "s/\"/'/g")
 #   echo -e "${f2}"
 #        -u elastic:XXXX \  # User identification, if needed
+#                                          /indexName     /typeName/uniqueId
    curl -X POST "${ELASTIC_SEARCH_INSTANCE}/subway_info_v1/station" \
         -H "Content-Type: application/json" \
         -d "{ \"station\": \"$f2\" }"
