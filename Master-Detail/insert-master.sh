@@ -29,7 +29,7 @@ done < nb-docs.txt
 #
 if [[ ${DO_DELETE} == true ]]
 then
-  echo -en "Do we delete index(es) [y|n] ? > "
+  echo -en "Cleanup? Do we delete index(es) [y|n] ? > "
   read -r hit
   #
   if [[ ${hit} =~ ^(yes|y|Y)$ ]]
@@ -37,7 +37,7 @@ then
     KEEP_LOOPING=true
     while [[ "${KEEP_LOOPING}" == "true" ]]
     do
-      echo -en "What index do we delete (empty [return] to break) ? > "
+      echo -en "What index do we delete (empty [return] to break, wildcards supported) ? > "
       read -r index
       if [[ "${index}" == "" ]]
       then
@@ -66,7 +66,7 @@ curl -X POST "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_IND
      -H "Content-Type: application/json" \
      -d "${RECORD_VALUE}" | jq
 #
-echo -en "Hit return to move on > "
+echo -en "Hit return to move on with another insert > "
 read -r hit
 #
 echo -e "--------------------------------------"
@@ -78,26 +78,29 @@ curl -X POST "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_IND
      -H "Content-Type: application/json" \
      -d "${RECORD_VALUE}" | jq
 #
-echo -en "Hit return to move on > "
+echo -en "Hit return to move on to sanity check > "
 read -r hit
 #
 echo -e "--------------------------------------"
 echo -e "Inserted 2 master records, sanity check"
 echo -e "--------------------------------------"
 #
-echo -en "Hit return to move on > "
-read -r hit
+# echo -en "Hit return to move on > "
+# read -r hit
 #
 # See what's in there, sanity check
 COMMAND="${ELASTIC_SEARCH_INSTANCE}/_cat/indices?v"
 echo -e "Doing: curl \"${COMMAND}\""
 curl "${COMMAND}"
 #
+echo -en "Hit return to move on, querying all > "
+read -r hit
+#
 echo -e "--------------------------------------"
 echo -e "Querying all:"
 echo -e "--------------------------------------"
 curl -X GET "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/_search" | jq
-echo -en "Hit return to move on > "
+echo -en "Hit return to move on with querying ONE record > "
 read -r hit
 #
 echo -e "--------------------------------------"
@@ -132,7 +135,7 @@ else
        -H "Content-Type: application/json" \
        -d "${RECORD_VALUE}" | jq
   #
-  echo -en "Hit return to move on > "
+  echo -en "Hit return to move on with another insert > "
   read -r hit
   UNIQUE_INDEX="20"
   RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Two\", \"value\": \"Get me a pizza now!\" }"
@@ -140,7 +143,15 @@ else
        -H "Content-Type: application/json" \
        -d "${RECORD_VALUE}" | jq
   #
-  echo -en "Hit return to move on > "
+  echo -en "Hit return to move on with a 3rd insert > "
+  read -r hit
+  UNIQUE_INDEX="30"
+  RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Three\", \"value\": \"Get me an apple pie\" }"
+  curl -X POST "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_INDEX}" \
+       -H "Content-Type: application/json" \
+       -d "${RECORD_VALUE}" | jq
+  #
+  echo -en "Hit return to move on, to see what has been inserted > "
   read -r hit
   # A search
   COMMAND="${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_search"
@@ -163,7 +174,39 @@ else
   # curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "user.id": { "value": "ki" }}}}'
   curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}'
   curl -X GET "localhost:9200/_search" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}' | jq
+  # Updating ONE record
+  echo -en "Hit return to move on with an update > "
+  read -r hit
+  UNIQUE_INDEX="30"
+  RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Three\", \"value\": \"Get me a beer!\" }"
+  curl -X PUT "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_INDEX}" \
+       -H "Content-Type: application/json" \
+       -d "${RECORD_VALUE}" | jq
   #
+  echo -en "Hit return to move on, see the updated record > "
+  read -r hit
+  echo -e "Doing a curl -X GET \"${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_search?q=value:*beer*\""
+  curl -X GET "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_search?q=value:*beer*" | jq
+  #
+  # Delete ONE record
+  #
+  echo -en "Hit return to move on (query all details) > "
+  read -r hit
+  echo -e "Detail records:"
+  echo -e "-----------------------"
+  curl -X GET "localhost:9200/${DATA_INDEX}/_search" | jq
+  echo -e "-----------------------"
+  echo -en "Hit return to move on with DELETE > "
+  read -r hit
+  UNIQUE_INDEX="30"
+  # RECORD_VALUE="{ \"suite\": ${MASTER_UNIQUE_INDEX}, \"id\": ${UNIQUE_INDEX}, \"name\": \"Case Three\", \"value\": \"Get me an apple pie\" }"
+  curl -X DELETE "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_INDEX}" | jq
+  echo -e "After DELETE: Detail records:"
+  echo -en "Hit return to move on > "
+  read -r hit
+   echo -e "-----------------------"
+  curl -X GET "localhost:9200/${DATA_INDEX}/_search" | jq
+  echo -e "-----------------------"
 fi
 #
 echo -e "Done!"
