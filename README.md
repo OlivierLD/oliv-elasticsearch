@@ -33,4 +33,14 @@ epoch      timestamp cluster       status node.total node.data shards pri relo i
 
 We are ready to move on!
 
+### Examples
+
+- Start `ElasticSearch` as indicated above
+- Populate the data (see in the script how it's done)
+    - `$ cd Master-Detail`
+    - `$ ./insert-master.sh`
+- Run the Java query sample, from the project root:
+    - The example is in `es.samples.ElasticSearchClient101.java`
+    - `$ ./gradlew runJavaSample`    
+
 ---

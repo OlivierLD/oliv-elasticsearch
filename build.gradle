@@ -66,3 +66,11 @@ shadowJar {
 //        )
 //    }
 //}
+
+task runJavaSample(type: JavaExec, dependsOn: build, description: "Test run.") {
+    main = 'es.samples.ElasticSearchClient101'
+//jvmArgs "-verbose"
+//classpath project.configurations.default
+    classpath sourceSets.main.runtimeClasspath
+//classpath sourceSets.main.output.classesDir
+}
