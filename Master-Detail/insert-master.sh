@@ -154,8 +154,15 @@ else
   echo -e "curl -X GET localhost:9200/test-cases/cases/_search | jq"
   echo -e "curl -X GET localhost:9200/test-cases/cases/_search?size=1&from=2 | jq"
   echo -e "curl -X GET localhost:9200/test-cases/cases/_search?q=name:*One | jq"
+  echo -e "curl -X GET localhost:9200/test-cases/cases/_search?pretty&q=name:*One"
   #
   # Elasticsearch - The definitive guide, p 108, and after
+  #
+  # Fuzzy queries, see the _score in the result.
+  # See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html
+  # curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "user.id": { "value": "ki" }}}}'
+  curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}'
+  curl -X GET "localhost:9200/_search" -H 'Content-Type: application/json' -d'{ "query": { "fuzzy": { "name": { "value": "case" }}}}' | jq
   #
 fi
 #
