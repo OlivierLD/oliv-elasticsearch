@@ -198,16 +198,26 @@ else
   echo -e "Doing a curl -X GET \"${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_search?q=value:*beer*\""
   curl -X GET "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_search?q=value:*beer*" | jq
   #
-  # Delete ONE record
-  #
   echo -en "Hit return to move on (query all details) > "
   read -r hit
   echo -e "Detail records:"
   echo -e "-----------------------"
-  curl -X GET "localhost:9200/${DATA_INDEX}/_search" | jq
+  curl -X GET "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/_search" | jq
   echo -e "-----------------------"
+  echo -e "Detail records, sorted:"
+  echo -e "-----------------------"
+  #
+  # A sort
+  curl -X GET "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/_search" \
+       -H "Content-Type: application/json" \
+       -d '{ "sort": { "id": { "order": "desc" } } }' | jq
+  echo -e "-----------------------"
+  #
   echo -en "Hit return to move on with DELETE > "
   read -r hit
+  #
+  # Delete ONE record
+  #
   UNIQUE_INDEX="30"
   curl -X DELETE "${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/${UNIQUE_INDEX}" | jq
   echo -e "After DELETE: Detail records:"
