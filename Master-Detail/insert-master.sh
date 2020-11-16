@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# jq tutorial at https://www.baeldung.com/linux/jq-command-json
+#
 echo -e "Inserting Master records"
 #
 ELASTIC_SEARCH_INSTANCE="localhost:9200"
@@ -9,11 +12,14 @@ echo -e "Before inserting, sanity check."
 echo -e "--------------------------------------"
 COMMAND="${ELASTIC_SEARCH_INSTANCE}/"
 echo -e "Doing: curl \"${COMMAND}\""
-curl -X GET "${COMMAND}" | jq
+echo -e "--------------------------------------"
+echo -e ">> ES Version $(curl -X GET "${COMMAND}" | jq '.version.number')"
+echo -e "--------------------------------------"
 #
 COMMAND="${ELASTIC_SEARCH_INSTANCE}/_cat/indices?v"
 echo -e "Doing: curl \"${COMMAND}\""
 curl -X GET "${COMMAND}"
+echo -e "--------------------------------------"
 #
 DATA_INDEX="test-suites"
 #
