@@ -14,6 +14,7 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Map;
 
@@ -49,6 +50,7 @@ public class ElasticSearchClient101 {
             SearchRequest searchRequest = new SearchRequest("test-cases");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+            searchSourceBuilder.sort("id", SortOrder.DESC); // a sort!
             searchRequest.source(searchSourceBuilder);
 
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -58,7 +60,7 @@ public class ElasticSearchClient101 {
             SearchHits hits = searchResponse.getHits();
             TotalHits totalHits = hits.getTotalHits();
             System.out.println(String.format("Nb hits: %d", totalHits.value));
-            System.out.println("---------------------");
+            System.out.println("---- S O R T E D ----");
 
             for (SearchHit hit : hits) {
                 // do something with the SearchHit
@@ -67,6 +69,7 @@ public class ElasticSearchClient101 {
                 sourceAsMap.forEach((key, value) -> System.out.println(String.format("%s: %s", key, value)));
                 System.out.println("---------------------");
             }
+
             // Done
             client.close();
         } catch (Exception ex) {
