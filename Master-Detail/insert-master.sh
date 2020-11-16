@@ -7,9 +7,13 @@ ELASTIC_SEARCH_INSTANCE="localhost:9200"
 echo -e "--------------------------------------"
 echo -e "Before inserting, sanity check."
 echo -e "--------------------------------------"
+COMMAND="${ELASTIC_SEARCH_INSTANCE}/"
+echo -e "Doing: curl \"${COMMAND}\""
+curl -X GET "${COMMAND}" | jq
+#
 COMMAND="${ELASTIC_SEARCH_INSTANCE}/_cat/indices?v"
 echo -e "Doing: curl \"${COMMAND}\""
-curl "${COMMAND}"
+curl -X GET "${COMMAND}"
 #
 DATA_INDEX="test-suites"
 #

@@ -9,6 +9,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.GetSourceRequest;
 import org.elasticsearch.client.core.GetSourceResponse;
+import org.elasticsearch.client.core.MainResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 /**
  * See https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-getting-started-initialization.html
+ * Good sample: https://github.com/dadoonet/elasticsearch-java-client-demo/blob/master/src/test/java/fr/pilato/test/elasticsearch/hlclient/EsClientTest.java
  *
  * Uses the data manipulated by insert-master.sh
  */
@@ -33,12 +35,25 @@ public class ElasticSearchClient101 {
             String host = elasticsearchInstance.substring(0, elasticsearchInstance.indexOf(":"));
             int port = Integer.parseInt(elasticsearchInstance.substring(elasticsearchInstance.indexOf(":") + 1));
 
-            RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
+            RestHighLevelClient esClient = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
 //            org.elasticsearch.action.search.SearchRequestBuilder requestBuilder = client.prepareSearch(indexName);
+            // Get version!
+            MainResponse info = esClient.info(RequestOptions.DEFAULT);
+            System.out.println("---- A D M I N -----");
+            System.out.println(String.format("Version     : %s", info.getVersion().getNumber()));
+            System.out.println(String.format("Cluster Name: %s", info.getClusterName()));
+            System.out.println(String.format("Cluster UUID: %s", info.getClusterUuid()));
+            System.out.println(String.format("Node Name   : %s", info.getNodeName()));
+            System.out.println("------ host(s) -----");
+            esClient.getLowLevelClient().getNodes().forEach(node -> System.out.println(String.format("%s://%s:%d",
+                        node.getHost().getSchemeName(),
+                        node.getHost().getHostName(),
+                        node.getHost().getPort())));
+            System.out.println("--------------------");
 
             // Get Source
             GetSourceRequest request = new GetSourceRequest("test-cases", "20");
-            GetSourceResponse response = client.getSource(request, RequestOptions.DEFAULT);
+            GetSourceResponse response = esClient.getSource(request, RequestOptions.DEFAULT);
 
             Map<String, Object> source = response.getSource();
 
@@ -53,7 +68,7 @@ public class ElasticSearchClient101 {
             searchSourceBuilder.sort("id", SortOrder.DESC); // a sort!
             searchRequest.source(searchSourceBuilder);
 
-            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = esClient.search(searchRequest, RequestOptions.DEFAULT);
             RestStatus status = searchResponse.status();
             System.out.println(String.format("Search Request status: %d", status.getStatus()));
 
@@ -71,7 +86,7 @@ public class ElasticSearchClient101 {
             }
 
             // Done
-            client.close();
+            esClient.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
