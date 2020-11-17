@@ -37,6 +37,17 @@ dependencies {
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.3'
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
     implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+//    testImplementation("org.assertj:assertj-core:3.10.0")
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0' // 3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0' // 3.1'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 repositories {

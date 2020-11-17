@@ -1,22 +1,32 @@
 package es.samples;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.http.HttpHost;
+import org.apache.http.util.EntityUtils;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.GetSourceRequest;
 import org.elasticsearch.client.core.GetSourceResponse;
 import org.elasticsearch.client.core.MainResponse;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.json.JSONObject;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -59,7 +69,11 @@ public class ElasticSearchClient101 {
 
             source.forEach((key, value) -> System.out.println(String.format("%s: %s", key, value)));
 
-            System.out.println("---------------------");
+            System.out.println("-- 20 retrieved --");
+
+            // Create document
+            esClient.index(new IndexRequest("test-cases").id("40").source("{ \"suite\": 1, \"id\": 40, \"name\": \"Created from Java\", \"value\": \"I want a pizza with pickles\" }", XContentType.JSON), RequestOptions.DEFAULT);
+            System.out.println("-- 40 Created --");
 
             // Search request
             SearchRequest searchRequest = new SearchRequest("test-cases");
@@ -84,6 +98,36 @@ public class ElasticSearchClient101 {
                 sourceAsMap.forEach((key, value) -> System.out.println(String.format("%s: %s", key, value)));
                 System.out.println("---------------------");
             }
+
+            // Trying SQL query
+            RestClient lowLevelClient = esClient.getLowLevelClient();
+            Request sqlRequest = new Request("POST", "/_sql"); // /translate");
+            JSONObject json = new JSONObject();
+            json.put("query", "SELECT * FROM \"test-cases\" WHERE suite = 1 "); // double-quotes around the index, because of the '-' in the name
+//            String jsonPayload = "{ \"query\": \"SELECT suite, name, id, value FROM \\\"test-cases\\\" \" }";
+//            String jsonPayload = "{ \"query\": \"SELECT * FROM \\\"test-cases\\\" \" }";
+            String jsonPayload = json.toString();
+            sqlRequest.setJsonEntity(jsonPayload);
+            Response sqlResponse = lowLevelClient.performRequest(sqlRequest);
+            // Use Jackson
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode tree = mapper.readTree(sqlResponse.getEntity().getContent());
+
+            ArrayNode columns = (ArrayNode)tree.get("columns");
+            ArrayNode rows = (ArrayNode)tree.get("rows");
+
+            // Columns
+            System.out.println("-- SQL Query, columns --");
+            columns.elements().forEachRemaining(jsonNode -> {
+                System.out.println(String.format("%s, as %s", jsonNode.get("name").asText(), jsonNode.get("type").asText()));
+            });
+            // Rows
+            System.out.println("-- SQL Query, rows --");
+            Iterator<JsonNode> elements = rows.elements();
+            elements.forEachRemaining(jsonNode -> {
+                System.out.println(jsonNode.toString());
+            });
+            lowLevelClient.close();
 
             // Done
             esClient.close();
