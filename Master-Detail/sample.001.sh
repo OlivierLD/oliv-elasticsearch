@@ -1,4 +1,6 @@
 #!/bin/bash
+echo -e "Master/Detail examples"
+echo -e "Along with Deletes, Updates, etc."
 #
 # jq tutorial at https://www.baeldung.com/linux/jq-command-json
 #
