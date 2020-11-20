@@ -62,6 +62,17 @@ done
 echo -e "Check it out: curl -X GET \"${ELASTIC_SEARCH_INSTANCE}/roule*/_search\" | jq"
 curl -X GET "${ELASTIC_SEARCH_INSTANCE}/roule*/_search" | jq
 #
+echo -en "Hit return to move on with a count, ... > "
+read -r hit
+COMMAND="${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_count"
+echo -e "Doing a curl -X GET ${COMMAND}"
+curl -X GET "${COMMAND}" > count.json
+# cat count.json | jq
+echo -e "Found: $(jq '.count' count.json) record(s)"
+#
+echo -en "Hit return to move on, ... > "
+read -r hit
+#
 echo -en "Enter the 'pk' of the record to update > "
 read -r pk
 echo -e "Now doing a curl -X GET \"${ELASTIC_SEARCH_INSTANCE}/_search\" -H 'Content-Type: application/json' -d'{ \"query\": { \"match\": { \"pk\": ${pk} }}}' | jq"
@@ -79,4 +90,13 @@ curl -X GET "${ELASTIC_SEARCH_INSTANCE}/_search" -H 'Content-Type: application/j
 cat new.json | jq
 echo -e "New record:"
 jq '.hits.hits[0]._source' new.json
+#
+echo -en "Hit return to move on with another count, ... > "
+read -r hit
+COMMAND="${ELASTIC_SEARCH_INSTANCE}/${DATA_INDEX}/${DATA_TYPE}/_count"
+echo -e "Doing a curl -X GET ${COMMAND}"
+curl -X GET "${COMMAND}" > count.json
+cat count.json | jq
+echo -e "New count: $(jq '.count' count.json)"
+#
 
